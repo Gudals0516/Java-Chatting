@@ -29,12 +29,12 @@ public class ServerThread implements Runnable{
         try {
             name = br.readLine();
             broadCasting("["+name+"]님이 입장하셨습니다.");
-            while (sock.isConnected()){
+            while (true){
                 String msg = br.readLine();
                 broadCasting(msg);
             }// while
         } catch (IOException e) {
-            broadCasting("System : ["+name+"]님이 퇴장하셨습니다.");
+            broadCasting("System : ["+name+"]님이 퇴장하셨습니다.\n");
         }finally{
             try {
                 sock.close();

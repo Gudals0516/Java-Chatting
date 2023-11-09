@@ -12,36 +12,50 @@ public class Client {
         Socket sock = null;
         BufferedReader br = null;
         PrintWriter pw = null;
-        Scanner scanner = new Scanner(System.in);
-        String msg = "";
-        String name = "";
+        String outmsg = null;
+        String name = null;
+
+        ChatFrame chatFrame = new ChatFrame();
+        chatFrame.viewon();
+
         try {
             sock = new Socket("localhost", 5050);
 
             br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
             pw = new PrintWriter(sock.getOutputStream());
 
-            System.out.print("이름을 입력하시오 > ");
-            name = scanner.nextLine();
+            while (true){
+                if(name==null){
+                    name = chatFrame.outmsg;
+                }else if(name!=null){
+                    chatFrame.outmsg = null;
+                    break;
+                }
+            }// while
 
             pw.println(name);
             pw.flush();
 
-            ClientThread clientThread = new ClientThread(name, sock);
+            ClientThread clientThread = new ClientThread(name, sock, chatFrame);
             Thread thread = new Thread(clientThread);
             thread.start();
 
             while (true){
-                msg = scanner.nextLine();
-                pw.println("["+name+"] : "+msg);
-                pw.flush();
+                outmsg = chatFrame.outmsg;
+                if(outmsg==null){
+                    continue;
+                }else if(outmsg!=null) {
+                    pw.println("[" + name + "] : " + outmsg);
+                    pw.flush();
+                    chatFrame.outmsg = null;
+                    continue;
+                }
             }// while
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }finally {
             try {
-                if(scanner != null) scanner.close();
                 if(pw != null) pw.close();
                 if(br != null) br.close();
                 if(sock != null) sock.close();
